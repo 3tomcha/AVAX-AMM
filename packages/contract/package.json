@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "hardhat": "^2.11.2"
+    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
+    "ethers": "^6.9.1",
+    "hardhat": "^2.19.3"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
