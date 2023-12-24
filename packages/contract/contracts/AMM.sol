@@ -17,4 +17,19 @@ contract AMM {
         _tokenX = tokenX;
         _tokenY = tokenY;
     }
+
+    // プールに流動生があり、使用可能であることを確認します
+    modifier activePool() {
+        require(totalShare > 0, "Zero Liquidity");
+        _;
+    }
+
+    // スマートコントラクトが使えるトークンであることを確認します
+    modifier validToken(IERC20 token) {
+        require(
+            token == _tokenX || token == _tokenY,
+            "Token is not in the pool"
+        );
+        _;
+    }
 }

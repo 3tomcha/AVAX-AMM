@@ -27,11 +27,35 @@ describe('AMM', function () {
     };
   }
 
-  describe('init', function () {
-    it('init', async function () {
-      const { amm } = await loadFixture(deployContract);
+  describe("provide", function () {
+    it("Token should be moved", async function () {
+      const { amm, token0, token1, owner } = await loadFixture(deployContract);
 
-      expect(await amm.totalShare()).to.eql(BigInt(0));
-    });
-  });
-});
+      const ownerBalance0Before = await token0.balanceOf(owner.address);
+      const ownerBalance1Before = await token1.balanceOf(owner.address);
+
+      const ammBalance0Before = await token0.balanceOf(amm.getAddress());
+      const ammBalance1Before = await token1.balanceOf(amm.getAddress());
+
+      // 今回使用する2つのトークンはETHと同じ単位を使用するとしているので、
+      // 100 ether (= 100 * 10^18) 分をprovideするという意味です。
+      const amountProvide0 = ethers.parseEther('100');
+      const amountProvide1 = ethers.parseEther('200');
+
+      await token0.approve(amm.getAddress(), amountProvide0);
+      await token1.approve(amm.getAddress(), amountProvide1);
+
+      await amm.provide(
+        token0.getAddress(),
+        amountProvide0,
+        token1.getAddress(),
+        amountProvide1
+      );
+
+      expect(await token0.balanceOf(owner.address)).to.eql(ownerBalance0Before - amountProvide0)
+      expect(await token0.balanceOf(owner.address)).to.eql(ownerBalance1Before - amountProvide1)
+      expect(await token0.balanceOf(amm.getAddress())).to.eql(ammBalance0Before + amountProvide0)
+      expect(await token0.balanceOf(amm.getAddress())).to.eql(ammBalance1Before + amountProvide0)
+    })
+  })
+})
