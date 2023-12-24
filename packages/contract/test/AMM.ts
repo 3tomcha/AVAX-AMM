@@ -1,6 +1,7 @@
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { token } from '../typechain-types/@openzeppelin/contracts';
 
 describe('AMM', function () {
   async function deployContract() {
@@ -133,4 +134,17 @@ describe('AMM', function () {
       )
     });
   })
-})
+
+  describe("getEquivalentToken", function () {
+    it("Should get the right number of equivalent token", async function () {
+      const { amm, token0, token1 } = await loadFixture(deployContractWithLiquidity);
+
+      const totalToken0 = await amm.totalAmount(token0.getAddress());
+      const totalToken1 = await amm.totalAmount(token1.getAddress());
+      const amountProvide0 = ethers.parseEther("10");
+      const equivalentToken1 = amountProvide0 * totalToken1 / totalToken0;
+
+      expect(await amm.getEquiavalentToken(token0.getAddress(), amountProvide0)).to.equal(equivalentToken1);
+    });
+  });
+});

@@ -57,6 +57,15 @@ contract AMM {
         return _tokenX;
     }
 
+    function getEquiavalentToken(
+        IERC20 inToken,
+        uint256 amountIn
+    ) public view activePool validToken(inToken) returns (uint256) {
+        IERC20 outToken = _pairToken(inToken);
+
+        return ((totalAmount[outToken] * amountIn) / totalAmount[inToken]);
+    }
+
     function provide(
         IERC20 tokenX,
         uint256 amountX,
