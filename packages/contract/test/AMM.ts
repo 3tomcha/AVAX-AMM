@@ -120,7 +120,17 @@ describe('AMM', function () {
       } = await loadFixture(deployContractWithLiquidity);
 
       const precision = await amm.PRECISION();
-      expect(await amm.totalShare()).to.equal((BigInt(100) + BigInt(10)) * precision);
+      const BN100 = BigInt(100); // ownerのシェア: 最初の流動性提供者なので100
+      const BN10 = BigInt(10); // otherAccountのシェア: ownerに比べて10分の1だけ提供しているので10
+      expect(await amm.totalShare()).to.equal((BN100 + BN10) * precision);
+      expect(await amm.share(owner.address)).to.equal(BN100 * precision);
+      expect(await amm.share(otherAccount.address)).to.equal(BN10 * precision);
+      expect(await amm.totalAmount(token0.getAddress())).to.equal(
+        amountOwnerProvided0 + amountOtherProvided0
+      )
+      expect(await amm.totalAmount(token1.getAddress())).to.equal(
+        amountOwnerProvided1 + amountOtherProvided1
+      )
     });
   })
 })
