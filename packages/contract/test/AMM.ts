@@ -61,4 +61,66 @@ describe('AMM', function () {
       expect(await token0.balanceOf(amm.getAddress())).to.eql(ammBalance1Before + amountProvide0)
     })
   })
+
+  async function deployContractWithLiquidity() {
+    const { amm, token0, token1, owner, otherAccount } = await loadFixture(
+      deployContract
+    );
+    const amountOwnerProvided0 = ethers.parseEther('100');
+    const amountOwnerProvided1 = ethers.parseEther('200');
+
+    await token0.approve(amm.getAddress(), amountOwnerProvided0);
+    await token1.approve(amm.getAddress(), amountOwnerProvided1);
+    await amm.provide(
+      token0.getAddress(),
+      amountOwnerProvided0,
+      token1.getAddress(),
+      amountOwnerProvided1
+    );
+
+    const amountOtherProvided0 = ethers.parseEther('10');
+    const amountOtherProvided1 = ethers.parseEther('20');
+
+    await token0.connect(otherAccount).approve(amm.getAddress(), amountOtherProvided0);
+    await token1.connect(otherAccount).approve(amm.getAddress(), amountOtherProvided1);
+    await amm
+      .connect(otherAccount)
+      .provide(
+        token0.getAddress(),
+        amountOtherProvided0,
+        token1.getAddress(),
+        amountOtherProvided1
+      );
+
+    return {
+      amm,
+      token0,
+      amountOwnerProvided0,
+      amountOtherProvided0,
+      token1,
+      amountOwnerProvided1,
+      amountOtherProvided1,
+      owner,
+      otherAccount,
+    };
+  }
+
+  describe("Deploy with liquidly", function () {
+    it("Should set the right number of amm details", async function () {
+      const {
+        amm,
+        token0,
+        amountOwnerProvided0,
+        amountOtherProvided0,
+        token1,
+        amountOwnerProvided1,
+        amountOtherProvided1,
+        owner,
+        otherAccount,
+      } = await loadFixture(deployContractWithLiquidity);
+
+      const precision = await amm.PRECISION();
+      expect(await amm.totalShare()).to.equal((BigInt(100) + BigInt(10)) * precision);
+    });
+  })
 })
