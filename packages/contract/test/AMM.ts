@@ -52,8 +52,11 @@ describe('AMM', function () {
         amountProvide1
       );
 
+      // 送った分減った
       expect(await token0.balanceOf(owner.address)).to.eql(ownerBalance0Before - amountProvide0)
-      expect(await token0.balanceOf(owner.address)).to.eql(ownerBalance1Before - amountProvide1)
+      expect(await token1.balanceOf(owner.address)).to.eql(ownerBalance1Before - amountProvide1)
+
+      // ammはもらった分増えた
       expect(await token0.balanceOf(amm.getAddress())).to.eql(ammBalance0Before + amountProvide0)
       expect(await token0.balanceOf(amm.getAddress())).to.eql(ammBalance1Before + amountProvide0)
     })
